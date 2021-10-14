@@ -80,7 +80,7 @@ class Player(pygame.sprite.Sprite):
     def get_status(self):
         if self.direction.y < 0:
             self.status = 'jump'
-        elif self.direction.y > 0.8:
+        elif self.direction.y > 1:
             self.status = 'fall'
         else:
             if self.direction.x != 0:

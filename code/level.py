@@ -9,7 +9,6 @@ from support import import_csv_layout, import_cut_graphics
 class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
-        # self.setup_level(level_data)
 
         # player setup
         player_layout = import_csv_layout(level_data['player'])
@@ -20,8 +19,11 @@ class Level:
         terrain_layout = import_csv_layout(level_data['terrain'])
         self.terrain_sprites = self.create_tile_group(terrain_layout, 'terrain')
 
-        ramp_layout = import_csv_layout(level_data['ramps'])
-        self.ramp_sprites = self.create_tile_group(ramp_layout, 'ramp')
+        upward_ramp_layout = import_csv_layout(level_data['upward_ramps'])
+        self.upward_ramp_sprites = self.create_tile_group(upward_ramp_layout, 'upward_ramp')
+ 
+        downward_ramp_layout = import_csv_layout(level_data['downward_ramps'])
+        self.downward_ramp_sprites = self.create_tile_group(downward_ramp_layout, 'downward_ramp')
 
         decoration_layout = import_csv_layout(level_data['decorations'])
         self.decoration_sprites = self.create_tile_group(
@@ -48,7 +50,7 @@ class Level:
                     x = col_index * tile_size
                     y = row_index * tile_size
 
-                    if type == 'terrain' or type == 'ramp' or type == 'decoration':
+                    if type == 'terrain' or type == 'upward_ramp' or type == 'downward_ramp' or type == 'decoration':
                         terrain_tile_list = import_cut_graphics(
                             '../tiles/terrain_tileset.png'
                         )
@@ -87,10 +89,10 @@ class Level:
         player_x = player.rect.centerx
         direction_x = player.direction.x
 
-        if player_x < (screen_width * 0.3) and direction_x < 0:
+        if player_x < (screen_width * 0.4) and direction_x < 0:
             self.world_shift = 3
             player.speed = 0
-        elif player_x > (screen_width * 0.7) and direction_x > 0:
+        elif player_x > (screen_width * 0.6) and direction_x > 0:
             self.world_shift = -3
             player.speed = 0
         else:
@@ -101,20 +103,45 @@ class Level:
         player = self.player.sprite
         player.rect.x += player.direction.x * player.speed
 
-        collidable_sprites = (
-            self.terrain_sprites.sprites() + self.ramp_sprites.sprites()
-        )
-
-        for sprite in collidable_sprites:
+        for sprite in self.terrain_sprites.sprites():
             if sprite.rect.colliderect(player.rect):
-                if player.direction.x < 0:
+                if player.direction.x < 0:  # moving left
                     player.rect.left = sprite.rect.right
                     player.on_left = True
                     self.current_x = player.rect.left
-                elif player.direction.x > 0:
+                    
+                elif player.direction.x > 0:  # moving right
                     player.rect.right = sprite.rect.left
                     player.on_right = True
                     self.current_x = player.rect.right
+        
+        for sprite in self.upward_ramp_sprites.sprites():
+            if sprite.rect.colliderect(player.rect):
+                rel_x = player.rect.x - sprite.rect.x
+                pos_height = rel_x + player.rect.width
+                pos_height = min(pos_height, tile_size)
+                pos_height = max(pos_height, 0)
+
+                target_y = sprite.rect.y + tile_size - pos_height
+
+                if player.rect.bottom > target_y:
+                    player.rect.bottom = target_y
+                    player.direction.y = 0
+                    player.on_ground = True
+
+        for sprite in self.downward_ramp_sprites.sprites():
+            if sprite.rect.colliderect(player.rect):
+                rel_x = player.rect.x - sprite.rect.x
+                pos_height = tile_size - rel_x
+                pos_height = min(pos_height, tile_size)
+                pos_height = max(pos_height, 0)
+
+                target_y = sprite.rect.y + tile_size - pos_height
+
+                if player.rect.bottom > target_y:
+                    player.rect.bottom = target_y
+                    player.direction.y = 0
+                    player.on_ground = True
 
         if player.on_left and (
             player.rect.left < self.current_x or player.direction.x >= 0
@@ -129,11 +156,7 @@ class Level:
         player = self.player.sprite
         player.apply_gravity()
 
-        collidable_sprites = (
-            self.terrain_sprites.sprites() + self.ramp_sprites.sprites()
-        )
-
-        for sprite in collidable_sprites:
+        for sprite in self.terrain_sprites.sprites():
             if sprite.rect.colliderect(player.rect):
                 if player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
@@ -144,6 +167,34 @@ class Level:
                     player.direction.y = 0
                     player.on_ceiling = True
 
+        for sprite in self.upward_ramp_sprites.sprites():
+            if sprite.rect.colliderect(player.rect):
+                rel_x = player.rect.x - sprite.rect.x
+                pos_height = rel_x + player.rect.width
+                pos_height = min(pos_height, tile_size)
+                pos_height = max(pos_height, 0)
+
+                target_y = sprite.rect.y + tile_size - pos_height
+
+                if player.rect.bottom > target_y:
+                    player.rect.bottom = target_y
+                    player.direction.y = 0
+                    player.on_ground = True
+
+        for sprite in self.downward_ramp_sprites.sprites():
+            if sprite.rect.colliderect(player.rect):
+                rel_x = player.rect.x - sprite.rect.x
+                pos_height = tile_size - rel_x
+                pos_height = min(pos_height, tile_size)
+                pos_height = max(pos_height, 0)
+
+                target_y = sprite.rect.y + tile_size - pos_height
+
+                if player.rect.bottom > target_y:
+                    player.rect.bottom = target_y
+                    player.direction.y = 0
+                    player.on_ground = True
+
         if player.on_ground and player.direction.y < 0 or player.direction.y > 0.8:
             player.on_ground = False
         if player.on_ceiling and player.direction.y > 0:
@@ -153,8 +204,10 @@ class Level:
         self.terrain_sprites.update(self.world_shift)
         self.terrain_sprites.draw(self.display_surface)
 
-        self.ramp_sprites.update(self.world_shift)
-        self.ramp_sprites.draw(self.display_surface)
+        self.upward_ramp_sprites.update(self.world_shift)
+        self.upward_ramp_sprites.draw(self.display_surface)
+        self.downward_ramp_sprites.update(self.world_shift)
+        self.downward_ramp_sprites.draw(self.display_surface)
 
         self.enemy_sprites.update(self.world_shift)
         self.constraint_sprites.update(self.world_shift)
