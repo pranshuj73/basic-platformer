@@ -82,6 +82,18 @@ class Level:
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
                 enemy.reverse()
 
+    def player_setup(self, layout):
+        for row_index, row in enumerate(layout):
+            for col_index, val in enumerate(row):
+                x = col_index * tile_size
+                y = row_index * tile_size
+                if val == '0':
+                    sprite = Player((x, y))
+                    self.player.add(sprite)
+                if val == '1':
+                    sprite = Tile((x, y), tile_size)
+                    self.goal.add(sprite)
+
     def scroll_x(self):
         """Moves the camera along with the player"""
 
