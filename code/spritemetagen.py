@@ -1,6 +1,7 @@
-# @pranshuj73
-# Utility Program to generate a json file for spritesheet containing tile position & dimensions
-
+"""
+> @pranshuj73
+> Utility Program to generate a json file for spritesheet containing tile position & dimensions
+"""
 
 import pygame
 import json

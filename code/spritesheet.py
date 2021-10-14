@@ -4,6 +4,7 @@ import json
 
 class Spritesheet:
     def __init__(self, filename):
+        """Create spritesheet from the file passed as param"""
         self.filename = filename
         self.sprite_sheet = pygame.image.load(filename).convert_alpha()
         self.meta_data = self.filename.replace('png', 'json')

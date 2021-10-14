@@ -10,26 +10,33 @@ class Level:
     def __init__(self, level_data, surface):
         self.display_surface = surface
 
-        # player setup
+        # Player setup
         player_layout = import_csv_layout(level_data['player'])
         self.player = pygame.sprite.GroupSingle()
         self.goal = pygame.sprite.GroupSingle()
         self.player_setup(player_layout)
 
+        # Load all tile data from CSV and create tile groups for them
+
+        # Terrain Setup #
         terrain_layout = import_csv_layout(level_data['terrain'])
         self.terrain_sprites = self.create_tile_group(terrain_layout, 'terrain')
 
+        # Ramp Setup #
         upward_ramp_layout = import_csv_layout(level_data['upward_ramps'])
         self.upward_ramp_sprites = self.create_tile_group(upward_ramp_layout, 'upward_ramp')
  
         downward_ramp_layout = import_csv_layout(level_data['downward_ramps'])
         self.downward_ramp_sprites = self.create_tile_group(downward_ramp_layout, 'downward_ramp')
 
+        # Decoration tiles setup #
         decoration_layout = import_csv_layout(level_data['decorations'])
         self.decoration_sprites = self.create_tile_group(
             decoration_layout, 'decoration'
         )
 
+
+        # Enemies & Constraints between which they can move #
         enemy_layout = import_csv_layout(level_data['enemy'])
         self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
 
@@ -42,6 +49,9 @@ class Level:
         self.current_x = 0
 
     def create_tile_group(self, layout, type):
+        """
+        Create various tile groups for the terrain, ramps, enemies & constraints which limit their movement"""
+
         sprite_group = pygame.sprite.Group()
 
         for row_index, row in enumerate(layout):
@@ -72,19 +82,9 @@ class Level:
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
                 enemy.reverse()
 
-    def player_setup(self, layout):
-        for row_index, row in enumerate(layout):
-            for col_index, val in enumerate(row):
-                x = col_index * tile_size
-                y = row_index * tile_size
-                if val == '0':
-                    sprite = Player((x, y))
-                    self.player.add(sprite)
-                if val == '1':
-                    sprite = Tile((x, y), tile_size)
-                    self.goal.add(sprite)
-
     def scroll_x(self):
+        """Moves the camera along with the player"""
+
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
@@ -201,6 +201,10 @@ class Level:
             player.on_ceiling = False
 
     def run(self):
+        """
+        Draw all tiles on screen and update their positions
+        Also enable Player & Enemy collisions
+        """
         self.terrain_sprites.update(self.world_shift)
         self.terrain_sprites.draw(self.display_surface)
 
