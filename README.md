@@ -34,7 +34,7 @@ For contribution check out the [CONTRIBUTING GUIDELINES](/CONTRIBUTING.md) and [
   
   <b>Q: Why did you make the game open-source? / What do I gain by contributing?</b>
   
-  A: I'm not to keen about game-dev but as it turns out making a game like this was a really good refresher for the OOP concepts in Python. 
+  A: I'm not too keen about game-dev but as it turns out making a game like this was a really good refresher for the OOP concepts in Python. 
   I decided to make this open-source because currently Hacktoberfest 2021 is going on, and I thought of being a maintainer this time!
   I hope by contributing, you get a little better understanding of how git, GitHub & open-source projects work. Not to mention, Python, OOP and Pygame too!
   
