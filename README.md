@@ -10,7 +10,7 @@ For contribution check out the [CONTRIBUTING GUIDELINES](/CONTRIBUTING.md) and [
 
 ## Current Status
 
-![image](https://i.imgur.com/fQ9OGeT.gif)
+![Game Playthrough](https://i.imgur.com/mZ3prq8.gif)
 
 
 ---
